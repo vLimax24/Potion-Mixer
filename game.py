@@ -1,19 +1,20 @@
 import pygame
 import os
 import random
+from pygame._sdl2 import Window
 
 # Pygame initialisieren
 pygame.init()
 
 # Bildschirmkonfiguration (Vollbild)
 SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("Zaubertrank Simulator")
 
 # Farben
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-PURPLE = (93, 0, 124, 190)  # #5D007C mit 0.74 Transparenz als RGBA
+PURPLE = (93, 0, 124, 190)
 DARK_PURPLE = (40, 0, 60)
 GOLD = (255, 215, 0)
 RED = (255, 0, 0)
