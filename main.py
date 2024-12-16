@@ -1,3 +1,6 @@
+import tkinter as tk
+from tkinter import messagebox
+
 zutaten = [
     {"name": "Heilkräuter", "wirkung": "heilen", "kraft": 20},
     {"name": "Feuerblume", "wirkung": "schaden", "kraft": 10},
@@ -104,25 +107,49 @@ tränke = {
 }
 
 
-def braue_trank(mischung):
-    # Umwandlung der Eingabe in eine Liste
-    zutaten = [zutat.strip() for zutat in mischung.split(",")]
+# Funktion, um einen Trank zu brauen
+def braue_trank():
+    # Abrufen der ausgewählten Zutaten (nur den Namen der Zutat verwenden)
+    ausgewählte_zutaten = []
+    for zutat_dict in zutaten:
+        if zutaten_checkbuttons[zutat_dict["name"]].get() == 1:
+            ausgewählte_zutaten.append(zutat_dict["name"])
 
     # Überprüfen, ob eine Kombination existiert
     passende_tränke = []
     for trank_name, trank in tränke.items():
-        if set(zutaten) == set(trank["zutaten"]):
+        if set(ausgewählte_zutaten) == set(trank["zutaten"]):
             passende_tränke.append(trank_name)
 
     # Ausgabe der passenden Tränke
     if passende_tränke:
-        print("Mit diesen Zutaten kannst du folgenden Trank brauen:")
-        for trank in passende_tränke:
-            print(f"- {trank}: {tränke[trank]['wirkung']}")
+        trank_ausgabe = "\n".join(f"{trank}: {tränke[trank]['wirkung']}" for trank in passende_tränke)
+        messagebox.showinfo("Passende Tränke",
+                            f"Mit diesen Zutaten kannst du folgenden Trank brauen:\n\n{trank_ausgabe}")
     else:
-        print("Es gibt keinen Trank, der mit diesen Zutaten gemischt werden kann.")
+        messagebox.showinfo("Kein passender Trank",
+                            "Es gibt keinen Trank, der mit diesen Zutaten gemischt werden kann.")
 
 
-# Benutzer nach Zutaten fragen
-user_input = input("Gib die Zutaten im Format 'Material1, Material2' ein: ")
-braue_trank(user_input)
+# GUI-Erstellung
+root = tk.Tk()
+root.title("Zaubertrank Brauen")
+
+# Überschrift
+label = tk.Label(root, text="Wähle Zutaten für deinen Trank aus:", font=("Helvetica", 14))
+label.pack(pady=10)
+
+# Erstellen der Checkbuttons für Zutaten
+zutaten_checkbuttons = {}
+for zutat_dict in zutaten:
+    # Nur den Namen der Zutat als Schlüssel verwenden
+    zutaten_checkbuttons[zutat_dict["name"]] = tk.IntVar()
+    checkbutton = tk.Checkbutton(root, text=zutat_dict["name"], variable=zutaten_checkbuttons[zutat_dict["name"]])
+    checkbutton.pack(anchor="w")
+
+# Brau-Button
+brau_button = tk.Button(root, text="Brau einen Trank!", command=braue_trank)
+brau_button.pack(pady=20)
+
+# Starten der GUI
+root.mainloop()
