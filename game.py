@@ -1,38 +1,51 @@
 import pygame
+import os
 import random
 
-# Initialisierung von Pygame
+# Pygame initialisieren
 pygame.init()
 
-# Bildschirmkonfiguration
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+# Bildschirmkonfiguration (Vollbild)
+SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("Zaubertrank Simulator")
 
 # Farben
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-GRAY = (100, 100, 100)
+PURPLE = (93, 0, 124, 190)  # #5D007C mit 0.74 Transparenz als RGBA
+DARK_PURPLE = (40, 0, 60)
+GOLD = (255, 215, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-ORANGE = (255, 165, 0)
+GRAY = (169, 169, 169)
+
+# Schriftarten
+pygame.font.init()
+font = pygame.font.Font(None, 36)
+title_font = pygame.font.Font(None, 48)
+
+# Hintergrundbild laden
+def load_background():
+    bg_path = os.path.join(os.path.dirname(__file__), 'hintergrund.jpg')
+    return pygame.transform.scale(pygame.image.load(bg_path), (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+background = load_background()
 
 # Materialeigenschaften
 materials = [
-    {"name": "Feuerbeere", "color": RED},
-    {"name": "Frostkristall", "color": BLUE},
-    {"name": "Naturblatt", "color": GREEN},
-    {"name": "Sonnenblume", "color": ORANGE},
-    {"name": "Nebelstein", "color": GRAY}
+    {"name": "Feuerblume", "color": (255, 0, 0)},
+    {"name": "Eisblume", "color": (0, 255, 255)},
+    {"name": "Schattenblatt", "color": (0, 100, 0)},
+    {"name": "Sonnenstein", "color": (255, 215, 0)},
+    {"name": "Nebelstein", "color": (169, 169, 169)}
 ]
 
 # Kombinationslogik
 valid_combinations = [
-    {"materials": ["Feuerbeere", "Frostkristall"], "quality_range": (70, 90)},
-    {"materials": ["Naturblatt", "Sonnenblume"], "quality_range": (50, 80)},
-    {"materials": ["Nebelstein", "Feuerbeere"], "quality_range": (30, 60)}
+    {"materials": ["Feuerblume", "Eisblume"], "quality_range": (70, 90)},
+    {"materials": ["Schattenblatt", "Sonnenstein"], "quality_range": (50, 80)},
+    {"materials": ["Nebelstein", "Feuerblume"], "quality_range": (30, 60)}
 ]
 
 # Spielvariablen
@@ -40,94 +53,135 @@ selected_materials = []
 clicks_required = 0
 clicks_made = 0
 current_potion = None
+recipe_book = []
 
-# Schriftarten
-font = pygame.font.Font(None, 36)
-
-# Materialregalpositionen
-material_positions = [(50 + i * 150, 50) for i in range(len(materials))]
-
-# Kesselposition
+# Positionen
+MATERIAL_SIZE = 80
+SIDEBAR_WIDTH = 300
 cauldron_pos = (SCREEN_WIDTH // 2 - 75, SCREEN_HEIGHT // 2 - 75)
+cauldron_rect = pygame.Rect(*cauldron_pos, 150, 150)
+recipe_button_rect = pygame.Rect(SCREEN_WIDTH - 200, 20, 150, 50)
 
-# Funktion zum Rendern von Text
-def render_text(text, x, y, color=BLACK):
-    text_surface = font.render(text, True, color)
-    screen.blit(text_surface, (x, y))
+# Liste der Material-Rechtecke
+material_rects = []
 
-# Hauptspielschleife
-running = True
-while running:
-    screen.fill(WHITE)
+# Funktionen
+def draw_sidebar():
+    sidebar_rect = pygame.Rect(0, 0, SIDEBAR_WIDTH, SCREEN_HEIGHT)
+    s = pygame.Surface((SIDEBAR_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+    s.fill(PURPLE)
+    screen.blit(s, (0, 0))
+    y_offset = 50
+    material_rects.clear()  # Rechtecke zurücksetzen
+    for material in materials:
+        rect = pygame.Rect(20, y_offset, MATERIAL_SIZE, MATERIAL_SIZE)
+        material_rects.append((rect, material["name"]))  # Rechteck und Materialname speichern
+        pygame.draw.ellipse(screen, material["color"], rect)
+        text = font.render(material["name"], True, WHITE)
+        screen.blit(text, (20, y_offset + MATERIAL_SIZE + 10))
+        y_offset += MATERIAL_SIZE + 40
+
+def draw_level_bar():
+    level_rect = pygame.Rect(SCREEN_WIDTH // 2 - 200, 20, 400, 30)
+    pygame.draw.rect(screen, DARK_PURPLE, level_rect)
+    pygame.draw.rect(screen, GOLD, (level_rect.x, level_rect.y, 300, 30))  # Fortschritt
+    text = font.render("15", True, WHITE)
+    screen.blit(text, (level_rect.x - 30, level_rect.y))
+    text = font.render("16", True, WHITE)
+    screen.blit(text, (level_rect.x + level_rect.width + 10, level_rect.y))
+
+def draw_added_materials():
+    overlay_width, overlay_height = 300, 150
+    overlay_rect = pygame.Rect(SCREEN_WIDTH // 2 - overlay_width // 2, cauldron_pos[1] - 180, overlay_width,
+                               overlay_height)
+
+    # Hintergrund des Overlays
+    pygame.draw.rect(screen, PURPLE[:-1], overlay_rect, border_radius=10)
+    title = font.render("Hinzugefügte Materialien:", True, WHITE)
+    screen.blit(title, (overlay_rect.x + 10, overlay_rect.y + 10))
 
     # Materialien anzeigen
-    for i, material in enumerate(materials):
-        pygame.draw.rect(screen, material["color"], (*material_positions[i], 100, 100))
-        render_text(material["name"], material_positions[i][0] - 20, material_positions[i][1] + 110)
+    x_offset = overlay_rect.x + 30
+    y_offset = overlay_rect.y + 50
+    for i, material_name in enumerate(selected_materials):
+        material_color = next(item["color"] for item in materials if item["name"] == material_name)
+        pygame.draw.circle(screen, material_color, (x_offset + i * 70, y_offset), 30)
+        text = font.render(material_name, True, WHITE)
+        screen.blit(text, (x_offset + i * 70 - 40, y_offset + 40))
 
-    # Hexenkessel anzeigen
-    pygame.draw.ellipse(screen, GRAY, (*cauldron_pos, 150, 150))
-    render_text("Hexenkessel", cauldron_pos[0] + 10, cauldron_pos[1] + 160)
+def draw_recipe_button():
+    pygame.draw.rect(screen, PURPLE[:-1], recipe_button_rect, border_radius=10)
+    text = font.render("Rezeptbuch", True, WHITE)
+    screen.blit(text, (recipe_button_rect.x + 15, recipe_button_rect.y + 10))
 
-    # Kesselinhalt anzeigen
-    if selected_materials:
-        render_text(f"Inhalt: {', '.join(selected_materials)}", 50, SCREEN_HEIGHT - 100)
+def draw_cauldron():
+    pygame.draw.ellipse(screen, GRAY, cauldron_rect)
+    pygame.draw.ellipse(screen, DARK_PURPLE, cauldron_rect, 5)
+    text = font.render("Hexenkessel", True, GOLD)
+    screen.blit(text, (cauldron_pos[0] + 20, cauldron_pos[1] + 160))
 
-    # Fortschritt beim Brauen anzeigen
-    if clicks_required > 0:
-        render_text(f"Klicke den Kessel: {clicks_made}/{clicks_required}", 50, SCREEN_HEIGHT - 60)
+def draw_recipe_book():
+    book_rect = pygame.Rect(200, 50, SCREEN_WIDTH - 400, SCREEN_HEIGHT - 100)
+    pygame.draw.rect(screen, BLACK, book_rect, border_radius=15)
+    pygame.draw.rect(screen, GOLD, book_rect, 5, border_radius=15)
+    title = title_font.render("Rezeptbuch", True, GOLD)
+    screen.blit(title, (book_rect.x + 20, book_rect.y + 20))
+    for i, (combo, quality) in enumerate(recipe_book):
+        text = font.render(f"{', '.join(combo)} | Qualität: {quality}%", True, WHITE)
+        screen.blit(text, (book_rect.x + 20, book_rect.y + 80 + i * 40))
 
-    # Potion-Status anzeigen
-    if current_potion:
-        if current_potion == "failure":
-            render_text("Brauen fehlgeschlagen!", 500, SCREEN_HEIGHT - 100, RED)
-        else:
-            render_text(f"Erfolgreicher Trank mit Qualität: {current_potion}%", 200, SCREEN_HEIGHT - 150, GREEN)
+# Interaktionen
+def cauldron_interaction(pos):
+    return cauldron_rect.collidepoint(pos)
 
-    # Ereignisse verarbeiten
+show_recipe_book = False
+running = True
+while running:
+    screen.blit(background, (0, 0))
+    draw_sidebar()
+    draw_level_bar()
+    draw_recipe_button()
+    draw_cauldron()
+    draw_added_materials()
+
+    # Rezeptbuch anzeigen
+    if show_recipe_book:
+        draw_recipe_book()
+
+    # Events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-
-            # Materialien auswählen
-            for i, material in enumerate(materials):
-                rect = pygame.Rect(*material_positions[i], 100, 100)
-                if rect.collidepoint(mouse_pos):
+            # Material in Sidebar ausgewählt
+            for rect, material_name in material_rects:
+                if rect.collidepoint(event.pos):
                     if len(selected_materials) < 2:
-                        selected_materials.append(material["name"])
-
-            # Kessel klicken
-            cauldron_rect = pygame.Rect(*cauldron_pos, 150, 150)
-            if cauldron_rect.collidepoint(mouse_pos):
-                if selected_materials and clicks_required == 0:
+                        selected_materials.append(material_name)
+                        print("Material hinzugefügt:", selected_materials)
+            # Hexenkessel-Interaktion
+            if cauldron_interaction(event.pos):
+                if len(selected_materials) == 2 and clicks_required == 0:
                     clicks_required = random.randint(5, 10)
                     clicks_made = 0
-                    current_potion = None
-
                 if clicks_required > 0:
                     clicks_made += 1
-
                     if clicks_made >= clicks_required:
-                        # Prüfen, ob die Kombination gültig ist
                         for combo in valid_combinations:
                             if set(selected_materials) == set(combo["materials"]):
                                 quality = random.randint(*combo["quality_range"])
-                                current_potion = quality
+                                recipe_book.append((selected_materials.copy(), quality))
+                                print("Trank erfolgreich! Qualität:", quality)
                                 break
-
-                        # Wenn keine gültige Kombination gefunden wurde
-                        if not current_potion:
-                            current_potion = "failure"
-
-                        # Zurücksetzen
+                        else:
+                            print("Trank fehlgeschlagen!")
                         selected_materials = []
                         clicks_required = 0
-
-    # Bildschirm aktualisieren
+                        clicks_made = 0
+            # Rezeptbuch-Button
+            if recipe_button_rect.collidepoint(event.pos):
+                show_recipe_book = not show_recipe_book
     pygame.display.flip()
 
-# Spiel beenden
 pygame.quit()
+
