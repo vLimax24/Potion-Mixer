@@ -1,246 +1,240 @@
 import curses
 import random
-
+import time
 
 def main(stdscr):
-    # Terminal setup
     curses.curs_set(0)
     stdscr.clear()
     curses.start_color()
 
-    # Initialize colors
-    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)  # Feuerblume
-    curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)  # Eisblume
-    curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)  # Schattenblatt
-    curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)  # Sonnenstein
-    curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)  # Nebelstein
-    curses.init_pair(6, curses.COLOR_BLUE, curses.COLOR_BLACK)  # Wasserkranz
-    curses.init_pair(7, curses.COLOR_MAGENTA, curses.COLOR_BLACK)  # Erdenfrucht
-    curses.init_pair(8, curses.COLOR_RED, curses.COLOR_WHITE)  # Sturmessenz
-    curses.init_pair(9, curses.COLOR_BLUE, curses.COLOR_WHITE)  # Mondblüte
-    curses.init_pair(10, curses.COLOR_YELLOW, curses.COLOR_WHITE)  # Sternenstaub
+    # Farben
+    farben = [
+        (1, curses.COLOR_RED), (2, curses.COLOR_CYAN), (3, curses.COLOR_GREEN),
+        (4, curses.COLOR_YELLOW), (5, curses.COLOR_WHITE), (6, curses.COLOR_BLUE),
+        (7, curses.COLOR_MAGENTA), (8, curses.COLOR_RED), (9, curses.COLOR_BLUE), (10, curses.COLOR_YELLOW)
+    ]
+    for idx, farbe in enumerate(farben):
+        curses.init_pair(idx + 1, farbe[1], curses.COLOR_BLACK)
 
-    # Materials and combinations
-    materials = [
-        {"name": "Feuerblume", "color": 1},
-        {"name": "Eisblume", "color": 2},
-        {"name": "Schattenblatt", "color": 3},
-        {"name": "Sonnenstein", "color": 4},
-        {"name": "Nebelstein", "color": 5},
-        {"name": "Wasserkranz", "color": 6},
-        {"name": "Erdenfrucht", "color": 7},
-        {"name": "Sturmessenz", "color": 8},
-        {"name": "Mondblüte", "color": 9},
-        {"name": "Sternenstaub", "color": 10},
+    # Materialien und Kombinationen
+    materialien = [
+        {"name": name, "farbe": idx + 1} for idx, name in enumerate(
+            ["Feuerblume", "Eisblume", "Schattenblatt", "Sonnenstein", "Nebelstein", "Wasserkranz", "Erdenfrucht", "Sturmessenz", "Mondblüte", "Sternenstaub"]
+        )
     ]
 
-    available_materials = materials[:4]
-    locked_materials = materials[4:]
+    verfuegbare_materialien = materialien[:4]
+    gesperrte_materialien = materialien[4:]
 
-    valid_combinations = [
-        # Zweierkombinationen
-        {"name": "Flammenfrost-Trank", "materials": ["Feuerblume", "Eisblume"], "quality_range": (0, 100)},
-        {"name": "Schattenlicht-Elixier", "materials": ["Schattenblatt", "Sonnenstein"], "quality_range": (0, 100)},
-        {"name": "Nebelbrand-Trank", "materials": ["Nebelstein", "Feuerblume"], "quality_range": (0, 100)},
-        {"name": "Lebensessenz", "materials": ["Wasserkranz", "Erdenfrucht"], "quality_range": (0, 100)},
-        {"name": "Sturm der Schatten", "materials": ["Sturmessenz", "Schattenblatt"], "quality_range": (0, 100)},
-        {"name": "Sonnentau-Trank", "materials": ["Sonnenstein", "Wasserkranz"], "quality_range": (0, 100)},
-
-        # Dreierkombinationen
-        {"name": "Inferno-Eislicht", "materials": ["Feuerblume", "Eisblume", "Sonnenstein"], "quality_range": (0, 100)},
-        {"name": "Nebelflut-Elixier", "materials": ["Nebelstein", "Sturmessenz", "Erdenfrucht"],
-         "quality_range": (0, 100)},
-        {"name": "Wasserfrost-Schatten", "materials": ["Wasserkranz", "Eisblume", "Schattenblatt"],
-         "quality_range": (0, 100)},
-        {"name": "Sonnenflammen-Sturm", "materials": ["Sonnenstein", "Feuerblume", "Sturmessenz"],
-         "quality_range": (0, 100)},
-        {"name": "Erdige Nebelschatten", "materials": ["Erdenfrucht", "Nebelstein", "Schattenblatt"],
-         "quality_range": (0, 100)},
-        {"name": "Wassersturm-Feuer", "materials": ["Wasserkranz", "Feuerblume", "Sturmessenz"],
-         "quality_range": (0, 100)},
+    gueltige_kombinationen = [
+        {"name": name, "materialien": mats, "qualitaet_spanne": (0, 100)} for name, mats in [
+            ("Flammenfrost-Trank", ["Feuerblume", "Eisblume"]),
+            ("Schattenlicht-Elixier", ["Schattenblatt", "Sonnenstein"]),
+            ("Nebelbrand-Trank", ["Nebelstein", "Feuerblume"]),
+            ("Lebensessenz", ["Wasserkranz", "Erdenfrucht"]),
+            ("Sturm der Schatten", ["Sturmessenz", "Schattenblatt"]),
+            ("Sonnentau-Trank", ["Sonnenstein", "Wasserkranz"]),
+            ("Inferno-Eislicht", ["Feuerblume", "Eisblume", "Sonnenstein"]),
+            ("Nebelflut-Elixier", ["Nebelstein", "Sturmessenz", "Erdenfrucht"]),
+            ("Wasserfrost-Schatten", ["Wasserkranz", "Eisblume", "Schattenblatt"]),
+            ("Sonnenflammen-Sturm", ["Sonnenstein", "Feuerblume", "Sturmessenz"]),
+            ("Erdige Nebelschatten", ["Erdenfrucht", "Nebelstein", "Schattenblatt"]),
+            ("Wassersturm-Feuer", ["Wasserkranz", "Feuerblume", "Sturmessenz"]),
+        ]
     ]
 
-    recipe_book = {}
+    # Status
+    level, aktuelle_xp, xp_bis_naechstes_level, muenzen, doppel_xp_zaehler = 1, 0, 100, 20, 0
+    hinweis_preis, freischalt_preis = 10, 20
+    rezeptbuch = {}
+    kesselabnutzung = 100
 
-    # Level, XP, Coins
-    level = 1
-    current_xp = 0
-    xp_to_next_level = 100
-    coins = 20
-    double_xp_counter = 0  # Tracks remaining double XP brews
-    hint_price = 10  # Base price for hints
-    unlock_price = 20  # Base price for unlocking new materials
+    def minispiel_kessel_reparatur(stdscr, muenzen):
+        reparatur_gesamt = 0
+        while True:
+            stdscr.clear()
+            stdscr.addstr(2, 2, f"Kessel-Reparatur! (Münzen: {muenzen})", curses.color_pair(6))
+            stdscr.addstr(4, 2, "Drücke [LEERTASTE], um zu reparieren (kostet 10-20 Münzen).")
+            stdscr.addstr(6, 2, "Wenn du keine Münzen mehr hast, verlierst du.")
+            stdscr.refresh()
 
-    def draw_progress_bar():
-        """Draws the progress bar for XP."""
-        bar_width = 20
-        filled_length = int(bar_width * current_xp / xp_to_next_level)
-        bar = "█" * filled_length + "-" * (bar_width - filled_length)
-        stdscr.addstr(1, 50, f"Level {level} | XP: {current_xp}/{xp_to_next_level}")
-        stdscr.addstr(2, 50, f"[{bar}]")
+            key = stdscr.getch()
+            if key == ord(' '):
+                kosten = random.randint(10, 20)
+                if muenzen < kosten:
+                    stdscr.clear()
+                    stdscr.addstr(2, 2, "Du hast nicht genug Münzen! Du hast verloren!", curses.color_pair(1))
+                    stdscr.refresh()
+                    time.sleep(2)
+                    return False, muenzen
 
-    def draw_sidebar(scroll_offset=0):
+                reparatur = random.randint(12, 20)
+                muenzen -= kosten
+                reparatur_gesamt += reparatur
+
+                stdscr.clear()
+                stdscr.addstr(2, 2, f"Repariert um {reparatur}%! Kosten: {kosten} Münzen.", curses.color_pair(3))
+                stdscr.addstr(4, 2, f"Gesamte Reparatur: {reparatur_gesamt}%. Münzen übrig: {muenzen}",
+                              curses.color_pair(6))
+                stdscr.refresh()
+
+                if reparatur_gesamt >= 100:
+                    stdscr.addstr(6, 2, "Der Kessel ist vollständig repariert!", curses.color_pair(2))
+                    stdscr.refresh()
+                    time.sleep(2)
+                    return True, muenzen
+
+            elif key == ord('q'):
+                return False, muenzen
+
+    # Funktionen
+    def zeichne_progress_bar():
+        gefuellte_laenge = int(20 * aktuelle_xp / xp_bis_naechstes_level)
+        balken = "█" * gefuellte_laenge + "-" * (20 - gefuellte_laenge)
+        stdscr.addstr(1, 50, f"Level {level} | XP: {aktuelle_xp}/{xp_bis_naechstes_level}")
+        stdscr.addstr(2, 50, f"[{balken}]")
+
+    def zeichne_seitenleiste(scroll_offset=0):
         stdscr.addstr(4, 2, "Materialien:", curses.color_pair(6))
-        visible_materials = available_materials[scroll_offset:scroll_offset + 7]
-        for idx, material in enumerate(visible_materials):
-            color = curses.color_pair(material["color"])
-            stdscr.addstr(6 + idx, 4, f"{scroll_offset + idx + 1}. {material['name']}", color)
+        max_anzeigen = 7
+        if len(verfuegbare_materialien) > max_anzeigen:
+            # Zeige Pfeil nach unten, wenn mehr als 7 Materialien verfügbar sind
+            stdscr.addstr(12, 4, "↓", curses.A_BOLD)
+
+        for idx, material in enumerate(verfuegbare_materialien[scroll_offset:scroll_offset + max_anzeigen]):
+            stdscr.addstr(6 + idx, 4, f"{scroll_offset + idx + 1}. {material['name']}", curses.color_pair(material["farbe"]))
 
         if scroll_offset > 0:
             stdscr.addstr(5, 4, "↑", curses.A_BOLD)
-        if scroll_offset + 7 < len(available_materials):
-            stdscr.addstr(13, 4, "↓", curses.A_BOLD)
 
-    def draw_potion_area(selected_materials):
+    def zeichne_kessel_bereich(ausgewaehlte_materialien):
         stdscr.addstr(4, 30, "Hexenkessel:", curses.color_pair(6))
-        for idx, material in enumerate(selected_materials):
-            color = curses.color_pair(next(m["color"] for m in materials if m["name"] == material))
-            stdscr.addstr(6 + idx, 32, material, color)
+        for idx, material in enumerate(ausgewaehlte_materialien):
+            farbe = curses.color_pair(next(m["farbe"] for m in materialien if m["name"] == material))
+            stdscr.addstr(6 + idx, 32, material, farbe)
 
-    def draw_recipe_book():
-        stdscr.addstr(10, 2, "Rezeptbuch:", curses.color_pair(6))
-        if not recipe_book:
-            stdscr.addstr(12, 4, "(Keine Rezepte gespeichert)", curses.A_DIM)
+        # Anzeige der Kesselabnutzung
+        stdscr.addstr(10, 30, f"Kesselabnutzung: {kesselabnutzung}%", curses.color_pair(3))
+
+    def zeichne_rezeptbuch():
+        # Verschiebe das Rezeptbuch weiter nach unten, damit es nicht mit den Materialien kollidiert
+        stdscr.addstr(15, 2, "Rezeptbuch:", curses.color_pair(6))
+        if rezeptbuch:
+            for idx, (name, details) in enumerate(rezeptbuch.items()):
+                stdscr.addstr(17 + idx, 4, f"{name} | {details['materialien']} | Qualität: {details['qualitaet']}% | Gebraut: {details['anzahl']}x")
         else:
-            for idx, (name, details) in enumerate(recipe_book.items()):
-                materials = details["materials"]
-                quality = details["quality"]
-                count = details["count"]
-                stdscr.addstr(12 + idx, 4, f"{name} | {materials} | Qualität: {quality}% | Gebraut: {count}x")
+            stdscr.addstr(17, 4, "(Keine Rezepte gespeichert)", curses.A_DIM)
 
-    def process_potion(selected_materials):
-        """
-        Processes the selected materials and checks for an exact match in valid combinations.
-        """
-        nonlocal current_xp, level, xp_to_next_level, coins, double_xp_counter
+    def verarbeite_trank(ausgewaehlte_materialien):
+        nonlocal aktuelle_xp, level, xp_bis_naechstes_level, muenzen, doppel_xp_zaehler, kesselabnutzung
 
-        for combo in valid_combinations:
-            # Check if materials exactly match a valid recipe (both content and order)
-            if sorted(selected_materials) == sorted(combo["materials"]):
-                quality = random.randint(*combo["quality_range"])
-                name = combo["name"]
+        for kombination in gueltige_kombinationen:
+            if sorted(ausgewaehlte_materialien) == sorted(kombination["materialien"]):
+                qualitaet = random.randint(*kombination["qualitaet_spanne"])
+                xp_gewonnen = round(10 + qualitaet / 5)
+                if doppel_xp_zaehler > 0:
+                    xp_gewonnen *= 2
+                    doppel_xp_zaehler -= 1
+                if qualitaet == 100: doppel_xp_zaehler = 5
 
-                base_xp = 10
-                xp_gained = base_xp + quality
-                if double_xp_counter > 0:
-                    xp_gained *= 2
-                    double_xp_counter -= 1
-
-                # Double XP bonus for 100% quality
-                if quality == 100:
-                    double_xp_counter = 5
-
-                # Add XP and check for level up
-                current_xp += xp_gained
-                if current_xp >= xp_to_next_level:
-                    current_xp -= xp_to_next_level
+                aktuelle_xp += xp_gewonnen
+                if aktuelle_xp >= xp_bis_naechstes_level:
+                    aktuelle_xp -= xp_bis_naechstes_level
                     level += 1
-                    xp_to_next_level = int(xp_to_next_level * 1.5)  # Increase XP requirement
+                    xp_bis_naechstes_level = int(xp_bis_naechstes_level * 1.5)
 
-                # Coins reward: base coins + quality-based increment
-                coins_gained = 5 + (quality // 10)
-                coins += coins_gained
+                muenzen += 5 + (qualitaet // 10)
+                kesselabnutzung -= random.randint(3, 5)
 
-                if name not in recipe_book:
-                    # Initialize recipe entry with materials, quality, and count
-                    recipe_book[name] = {"materials": combo["materials"], "quality": quality, "count": 1}
+                if kombination["name"] not in rezeptbuch:
+                    rezeptbuch[kombination["name"]] = {"materialien": kombination["materialien"], "qualitaet": qualitaet, "anzahl": 1}
                 else:
-                    if recipe_book[name]["quality"] < quality:
-                        recipe_book[name]["quality"] = quality  # Update quality if better
-                    recipe_book[name]["count"] += 1  # Increment count
+                    if rezeptbuch[kombination["name"]]["qualitaet"] < qualitaet:
+                        rezeptbuch[kombination["name"]]["qualitaet"] = qualitaet
+                    rezeptbuch[kombination["name"]]["anzahl"] += 1
 
-                return f"Erfolgreich! {name} - Qualität: {quality}% (+{xp_gained} XP, +{coins_gained} Münzen)"
+                return f"Erfolgreich! {kombination['name']} - Qualität: {qualitaet}% (+{xp_gewonnen} XP, +{muenzen} Münzen)"
 
-        # If no match, return failure message
-        return "Fehlgeschlagen!"
+        # Wenn der Trank nicht erfolgreich ist, verringern wir die Kesselabnutzung
+        kesselabnutzung -= random.randint(6, 12)
+        if kesselabnutzung < 0:
+            kesselabnutzung = 0
 
-    def shop():
-        """Displays the shop and allows the player to purchase hints or unlock materials."""
-        nonlocal coins, hint_price, unlock_price, locked_materials
+        return "Fehlgeschlagen! Kesselabnutzung steigt!"
+
+    def laden():
+        nonlocal muenzen, hinweis_preis, freischalt_preis, gesperrte_materialien
         while True:
             stdscr.clear()
-            stdscr.addstr(2, 2, f"Shop ({coins} Münzen verfügbar):", curses.color_pair(6))
-            stdscr.addstr(4, 4, f"1. Rezept-Hinweis kaufen ({hint_price} Münzen)")
-            if locked_materials:
-                stdscr.addstr(5, 4, f"2. Neues Material freischalten ({unlock_price} Münzen)")
+            stdscr.addstr(2, 2, f"Shop ({muenzen} Münzen verfügbar):", curses.color_pair(6))
+            stdscr.addstr(4, 4, f"1. Rezept-Hinweis kaufen ({hinweis_preis} Münzen)")
+            if gesperrte_materialien:
+                stdscr.addstr(5, 4, f"2. Neues Material freischalten ({freischalt_preis} Münzen)")
             else:
                 stdscr.addstr(5, 4, "(Alle Materialien freigeschaltet!)", curses.A_DIM)
-            stdscr.addstr(7, 2, "Drücke 'q', um zurückzukehren.")
-
+            stdscr.addstr(7, 2, "Drücke [Q], um zurückzukehren.")
             key = stdscr.getch()
-            if key == ord('q'):
-                break
+            if key == ord('q'): break
             elif key == ord('1'):
-                # Get valid hints for owned materials
-                valid_hints = [
-                    combo for combo in valid_combinations
-                    if all(mat in [m["name"] for m in available_materials] for mat in combo["materials"])
-                ]
-                if coins >= hint_price and valid_hints:
-                    coins -= hint_price
-                    hint = random.choice(valid_hints)
-                    partial_hint = hint["materials"][:-1] + ["..."]  # Hide the last material
-                    stdscr.addstr(9, 4, f"Tipp: {partial_hint}", curses.A_BOLD)
-                    hint_price += 5  # Hints become progressively more expensive
-                elif not valid_hints:
-                    stdscr.addstr(9, 4, "Keine Rezepte verfügbar, die du mit deinen Materialien brauen kannst.",
-                                  curses.A_BOLD)
+                if muenzen >= hinweis_preis:
+                    gueltige_hinweise = [kombination for kombination in gueltige_kombinationen if all(mat in [m["name"] for m in verfuegbare_materialien] for mat in kombination["materialien"])]
+                    if gueltige_hinweise:
+                        muenzen -= hinweis_preis
+                        hinweis = random.choice(gueltige_hinweise)
+                        teil_hinweis = hinweis["materialien"][:-1] + ["..."]
+                        stdscr.addstr(9, 4, f"Tipp: {teil_hinweis}", curses.A_BOLD)
+                        hinweis_preis += 5
+                    else:
+                        stdscr.addstr(9, 4, "Keine Rezepte verfügbar.", curses.A_BOLD)
                 else:
                     stdscr.addstr(9, 4, "Nicht genug Münzen!", curses.A_BOLD)
                 stdscr.refresh()
                 stdscr.getch()
-            elif key == ord('2') and locked_materials:
-                if coins >= unlock_price:
-                    coins -= unlock_price
-                    new_material = locked_materials.pop(0)
-                    available_materials.append(new_material)
-                    stdscr.addstr(9, 4, f"Neues Material freigeschaltet: {new_material['name']}!", curses.A_BOLD)
-                    unlock_price += 10  # Unlocking materials becomes more expensive
+            elif key == ord('2') and gesperrte_materialien:
+                if muenzen >= freischalt_preis:
+                    muenzen -= freischalt_preis
+                    neues_material = gesperrte_materialien.pop(0)
+                    verfuegbare_materialien.append(neues_material)
+                    stdscr.addstr(9, 4, f"Neues Material freigeschaltet: {neues_material['name']}!", curses.A_BOLD)
+                    freischalt_preis += 10
                 else:
                     stdscr.addstr(9, 4, "Nicht genug Münzen!", curses.A_BOLD)
                 stdscr.refresh()
                 stdscr.getch()
 
-    def game_loop():
-        selected_materials = []
+    def spiel_schleife():
+        ausgewaehlte_materialien = []
         scroll_offset = 0
 
         while True:
             stdscr.clear()
-            draw_progress_bar()
-            draw_sidebar(scroll_offset)
-            draw_potion_area(selected_materials)
-            draw_recipe_book()
-            stdscr.addstr(20, 2, f"Münzen: {coins}", curses.A_BOLD)
-            stdscr.addstr(21, 2, "Drücke 'c', um einen Trank zu brauen.", curses.A_BOLD)
-            stdscr.addstr(22, 2, "Drücke 's', um den Shop zu öffnen.", curses.A_BOLD)
-            stdscr.addstr(23, 2, "Drücke 'q', um das Spiel zu beenden.", curses.A_BOLD)
-
+            zeichne_progress_bar()
+            zeichne_seitenleiste(scroll_offset)
+            zeichne_kessel_bereich(ausgewaehlte_materialien)
+            zeichne_rezeptbuch()
+            stdscr.addstr(20, 2, f"Münzen: {muenzen}", curses.A_BOLD)
+            stdscr.addstr(21, 2, "Drücke [ENTER], um einen Trank zu brauen.", curses.A_BOLD)
+            stdscr.addstr(22, 2, "Drücke [S], um den Shop zu öffnen.", curses.A_BOLD)
+            stdscr.addstr(23, 2, "Drücke [Q], um das Spiel zu beenden.", curses.A_BOLD)
 
             key = stdscr.getch()
-            if key == ord('q'):
-                break
-            elif key == ord('s'):
-                shop()
-            elif ord('1') <= key <= ord(str(min(len(available_materials), 9))):
+            if key == ord('q'): break
+            elif key == ord('s'): laden()
+            elif ord('1') <= key <= ord(str(min(len(verfuegbare_materialien), 9))):
                 material_idx = key - ord('1')
-                if len(selected_materials) < 3:
-                    selected_materials.append(available_materials[material_idx]["name"])
-            elif key in [ord('c')]:
-                if selected_materials:
-                    result = process_potion(selected_materials)
-                    selected_materials.clear()
-                    stdscr.addstr(24, 2, result, curses.A_BOLD)
-                    stdscr.refresh()
-                    stdscr.getch()
-            elif key == curses.KEY_DOWN:
-                if scroll_offset < max(0, len(materials) - 7):
-                    scroll_offset += 1
-            elif key == curses.KEY_UP:
-                if scroll_offset > 0:
-                    scroll_offset -= 1
+                if len(ausgewaehlte_materialien) < 3:
+                    ausgewaehlte_materialien.append(verfuegbare_materialien[material_idx]["name"])
+            elif key == ord('\n') and ausgewaehlte_materialien:
+                result = verarbeite_trank(ausgewaehlte_materialien)
+                ausgewaehlte_materialien.clear()
+                stdscr.addstr(24, 2, result, curses.A_BOLD)
+                stdscr.refresh()
+                stdscr.getch()
+            elif key == curses.KEY_DOWN and scroll_offset < len(verfuegbare_materialien) - 7:
+                scroll_offset += 1
+            elif key == curses.KEY_UP and scroll_offset > 0:
+                scroll_offset -= 1
 
-    game_loop()
-
+    spiel_schleife()
 
 curses.wrapper(main)
