@@ -2,6 +2,7 @@ import curses
 import random
 import time
 
+
 def main(stdscr):
     curses.curs_set(0)
     stdscr.clear()
@@ -19,7 +20,8 @@ def main(stdscr):
     # Materialien und Kombinationen
     materialien = [
         {"name": name, "farbe": idx + 1} for idx, name in enumerate(
-            ["Lavendel", "Drachenblut", "Salbei", "Rosmarin", "Kamille", "Bambus", "Echtes Gold", "Schwarzes Salz", "Fliederblüten", "Eisenfeilen"]
+            ["Lavendel", "Drachenblut", "Salbei", "Rosmarin", "Kamille", "Bambus", "Echtes Gold", "Schwarzes Salz",
+             "Fliederblüten", "Eisenfeilen"]
         )
     ]
 
@@ -48,51 +50,75 @@ def main(stdscr):
         {"name": "Frostschutzzauber", "materialien": ["Schwarzes Salz", "Eisblume"], "qualitaet_spanne": (0, 100)},
         {"name": "Reinigungstrank", "materialien": ["Salbei", "Schwarzes Salz"], "qualitaet_spanne": (0, 100)},
         {"name": "Zaubertrank der Weisheit", "materialien": ["Kamille", "Rosmarin"], "qualitaet_spanne": (0, 100)},
-        {"name": "Heilende Magie", "materialien": ["Lavendel", "Kamille", "Fliederblüten"], "qualitaet_spanne": (0, 100)},
-        {"name": "Sturmtrank", "materialien": ["Fliederblüten", "Eisenfeilen", "Schwarzes Salz"], "qualitaet_spanne": (0, 100)},
-        {"name": "Kraft des Goldes", "materialien": ["Gold", "Eisenfeilen", "Fliederblüten"], "qualitaet_spanne": (0, 100)},
-        {"name": "Feuerzauber", "materialien": ["Feuerblume", "Fliederblüten", "Schwarzes Salz"], "qualitaet_spanne": (0, 100)},
+        {"name": "Heilende Magie", "materialien": ["Lavendel", "Kamille", "Fliederblüten"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Sturmtrank", "materialien": ["Fliederblüten", "Eisenfeilen", "Schwarzes Salz"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Kraft des Goldes", "materialien": ["Gold", "Eisenfeilen", "Fliederblüten"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Feuerzauber", "materialien": ["Feuerblume", "Fliederblüten", "Schwarzes Salz"],
+         "qualitaet_spanne": (0, 100)},
         {"name": "Mächtiger Segen", "materialien": ["Rosmarin", "Bambus", "Eisenfeilen"], "qualitaet_spanne": (0, 100)},
-        {"name": "Banntrank", "materialien": ["Schwarzes Salz", "Fliederblüten", "Eisenfeilen"], "qualitaet_spanne": (0, 100)},
+        {"name": "Banntrank", "materialien": ["Schwarzes Salz", "Fliederblüten", "Eisenfeilen"],
+         "qualitaet_spanne": (0, 100)},
         {"name": "Essenz des Lebens", "materialien": ["Kamille", "Bambus", "Salbei"], "qualitaet_spanne": (0, 100)},
         {"name": "Flimmertrank", "materialien": ["Bambus", "Fliederblüten", "Eisblume"], "qualitaet_spanne": (0, 100)},
-        {"name": "Magischer Schutz", "materialien": ["Schwarzes Salz", "Fliederblüten", "Rosmarin"], "qualitaet_spanne": (0, 100)},
+        {"name": "Magischer Schutz", "materialien": ["Schwarzes Salz", "Fliederblüten", "Rosmarin"],
+         "qualitaet_spanne": (0, 100)},
         {"name": "Liebeszauber", "materialien": ["Rosmarin", "Fliederblüten", "Kamille"], "qualitaet_spanne": (0, 100)},
         {"name": "Schattenbringer", "materialien": ["Bambus", "Salbei", "Eisenfeilen"], "qualitaet_spanne": (0, 100)},
         {"name": "Frost-Magie", "materialien": ["Eisblume", "Kamille", "Gold"], "qualitaet_spanne": (0, 100)},
-        {"name": "Zauber der Freiheit", "materialien": ["Bambus", "Kamille", "Fliederblüten"], "qualitaet_spanne": (0, 100)},
+        {"name": "Zauber der Freiheit", "materialien": ["Bambus", "Kamille", "Fliederblüten"],
+         "qualitaet_spanne": (0, 100)},
         {"name": "Hitzewelle", "materialien": ["Feuerblume", "Bambus", "Schwarzes Salz"], "qualitaet_spanne": (0, 100)},
-        {"name": "Heiltrank der Stärke", "materialien": ["Kamille", "Eisenfeilen", "Salbei"], "qualitaet_spanne": (0, 100)},
-        {"name": "Verborgene Magie", "materialien": ["Fliederblüten", "Eisenfeilen", "Rosmarin"], "qualitaet_spanne": (0, 100)},
-        {"name": "Kristall der Klarheit", "materialien": ["Eisenfeilen", "Salbei", "Fliederblüten"], "qualitaet_spanne": (0, 100)},
+        {"name": "Heiltrank der Stärke", "materialien": ["Kamille", "Eisenfeilen", "Salbei"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Verborgene Magie", "materialien": ["Fliederblüten", "Eisenfeilen", "Rosmarin"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Kristall der Klarheit", "materialien": ["Eisenfeilen", "Salbei", "Fliederblüten"],
+         "qualitaet_spanne": (0, 100)},
         {"name": "Drachenblut-Zauber", "materialien": ["Gold", "Kamille", "Eisenfeilen"], "qualitaet_spanne": (0, 100)},
-        {"name": "Heiliger Trank", "materialien": ["Lavendel", "Fliederblüten", "Bambus"], "qualitaet_spanne": (0, 100)},
-        {"name": "Zauber der Veränderung", "materialien": ["Rosmarin", "Salbei", "Bambus"], "qualitaet_spanne": (0, 100)},
+        {"name": "Heiliger Trank", "materialien": ["Lavendel", "Fliederblüten", "Bambus"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Zauber der Veränderung", "materialien": ["Rosmarin", "Salbei", "Bambus"],
+         "qualitaet_spanne": (0, 100)},
         {"name": "Frostfeuer", "materialien": ["Eisblume", "Feuerblume", "Gold"], "qualitaet_spanne": (0, 100)},
-        {"name": "Essenz des Glücks", "materialien": ["Kamille", "Bambus", "Fliederblüten"], "qualitaet_spanne": (0, 100)},
+        {"name": "Essenz des Glücks", "materialien": ["Kamille", "Bambus", "Fliederblüten"],
+         "qualitaet_spanne": (0, 100)},
         {"name": "Lichtzauber", "materialien": ["Lavendel", "Rosmarin", "Eisenfeilen"], "qualitaet_spanne": (0, 100)},
         {"name": "Nebeltrank", "materialien": ["Eisblume", "Salbei", "Gold"], "qualitaet_spanne": (0, 100)},
         {"name": "Energie-Elixier", "materialien": ["Rosmarin", "Gold", "Bambus"], "qualitaet_spanne": (0, 100)},
-        {"name": "Feuer der Wiedergeburt", "materialien": ["Fliederblüten", "Feuerblume", "Bambus"], "qualitaet_spanne": (0, 100)},
-        {"name": "Kristallklarer Zauber", "materialien": ["Eisblume", "Fliederblüten", "Rosmarin"], "qualitaet_spanne": (0, 100)},
+        {"name": "Feuer der Wiedergeburt", "materialien": ["Fliederblüten", "Feuerblume", "Bambus"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Kristallklarer Zauber", "materialien": ["Eisblume", "Fliederblüten", "Rosmarin"],
+         "qualitaet_spanne": (0, 100)},
         {"name": "Seelenzauber", "materialien": ["Kamille", "Bambus", "Rosmarin"], "qualitaet_spanne": (0, 100)},
-        {"name": "Lebensquell-Elixier", "materialien": ["Fliederblüten", "Lavendel", "Eisenfeilen"], "qualitaet_spanne": (0, 100)},
-        {"name": "Trank der Unendlichkeit", "materialien": ["Gold", "Bambus", "Feuerblume"], "qualitaet_spanne": (0, 100)},
-        {"name": "Glücksbringer", "materialien": ["Fliederblüten", "Lavendel", "Eisblume"], "qualitaet_spanne": (0, 100)},
-        {"name": "Schattenfeuer", "materialien": ["Feuerblume", "Schwarzes Salz", "Bambus"], "qualitaet_spanne": (0, 100)},
+        {"name": "Lebensquell-Elixier", "materialien": ["Fliederblüten", "Lavendel", "Eisenfeilen"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Trank der Unendlichkeit", "materialien": ["Gold", "Bambus", "Feuerblume"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Glücksbringer", "materialien": ["Fliederblüten", "Lavendel", "Eisblume"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Schattenfeuer", "materialien": ["Feuerblume", "Schwarzes Salz", "Bambus"],
+         "qualitaet_spanne": (0, 100)},
         {"name": "Lichtritter-Trank", "materialien": ["Rosmarin", "Lavendel", "Gold"], "qualitaet_spanne": (0, 100)},
-        {"name": "Trank der ewigen Liebe", "materialien": ["Fliederblüten", "Kamille", "Lavendel"], "qualitaet_spanne": (0, 100)},
-        {"name": "Dunkelheitszauber", "materialien": ["Schwarzes Salz", "Feuerblume", "Kamille"], "qualitaet_spanne": (0, 100)},
-        {"name": "Frostgeist-Trank", "materialien": ["Eisblume", "Rosmarin", "Fliederblüten"], "qualitaet_spanne": (0, 100)},
-        {"name": "Essenz der Dunkelheit", "materialien": ["Schwarzes Salz", "Eisenfeilen", "Fliederblüten"], "qualitaet_spanne": (0, 100)},
-        {"name": "Zauber des Sturms", "materialien": ["Eisenfeilen", "Salbei", "Fliederblüten"], "qualitaet_spanne": (0, 100)},
-        {"name": "Essenz des Feuers", "materialien": ["Fliederblüten", "Schwarzes Salz", "Bambus"], "qualitaet_spanne": (0, 100)},
+        {"name": "Trank der ewigen Liebe", "materialien": ["Fliederblüten", "Kamille", "Lavendel"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Dunkelheitszauber", "materialien": ["Schwarzes Salz", "Feuerblume", "Kamille"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Frostgeist-Trank", "materialien": ["Eisblume", "Rosmarin", "Fliederblüten"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Essenz der Dunkelheit", "materialien": ["Schwarzes Salz", "Eisenfeilen", "Fliederblüten"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Zauber des Sturms", "materialien": ["Eisenfeilen", "Salbei", "Fliederblüten"],
+         "qualitaet_spanne": (0, 100)},
+        {"name": "Essenz des Feuers", "materialien": ["Fliederblüten", "Schwarzes Salz", "Bambus"],
+         "qualitaet_spanne": (0, 100)},
     ]
-
 
     # Status
     level, aktuelle_xp, xp_bis_naechstes_level, muenzen, doppel_xp_zaehler = 1, 0, 100, 200, 0
-    hinweis_preis, freischalt_preis = 10, 20
+    hinweis_preis, freischalt_preis = 50, 100
     rezeptbuch = {}
     kesselabnutzung = 100
     scroll_offset = 0
@@ -115,13 +141,13 @@ def main(stdscr):
             stdscr.addstr(2, 2, "✨ Kessel-Reparatur ✨", curses.color_pair(4) | curses.A_BOLD)
             stdscr.addstr(3, 2, f"💸 Münzen verfügbar: {muenzen}", curses.color_pair(7))
             stdscr.addstr(4, 2, f"🔧 Gesamtreparatur: {reparatur_gesamt}%", curses.color_pair(3))
-            
+
             # Kessel-Darstellung
-            
+
             if kessel_status < 50:  # Kessel ist rot, wenn die Reparatur < 50%
-                        stdscr.addstr(zeile_offset, 10, "╔═════╗", curses.color_pair(1))
+                stdscr.addstr(zeile_offset, 10, "╔═════╗", curses.color_pair(1))
             else:  # Kessel wird blau, wenn die Reparatur >= 50%
-                        stdscr.addstr(zeile_offset, 10, "╔═════╗", curses.color_pair(3))
+                stdscr.addstr(zeile_offset, 10, "╔═════╗", curses.color_pair(3))
             for i in range(1, 11):
                 if i <= kessel_status // 10:
                     if kessel_status < 50:  # Kessel ist rot, wenn die Reparatur < 50%
@@ -140,7 +166,7 @@ def main(stdscr):
             if key == ord(' '):
                 kosten = random.randint(10, 20)
                 reparatur = random.randint(12, 20)
-                
+
                 if muenzen < kosten:
                     stdscr.addstr(19, 2, "Nicht genug Münzen! Spiel verloren!", curses.color_pair(1) | curses.A_BOLD)
                     stdscr.refresh()
@@ -157,12 +183,11 @@ def main(stdscr):
 
                 if reparatur_gesamt >= 100:
                     stdscr.refresh()
-                    
+
                     return True, muenzen
 
             elif key == ord('q'):
                 return False, muenzen
-
 
     def zeichne_rahmen():
         # Rahmen zeichnen
@@ -177,7 +202,7 @@ def main(stdscr):
         stdscr.addstr(0, 80, "╦")
         stdscr.addstr(21, 49, "╩")
         stdscr.addstr(21, 80, "╩")
-    
+
     def zeichne_status():
         stdscr.addstr(1, 2, f"Level: {level}   XP: {aktuelle_xp}/{xp_bis_naechstes_level}", curses.color_pair(3))
         gefuellte_laenge = int(20 * aktuelle_xp / xp_bis_naechstes_level)
@@ -192,13 +217,13 @@ def main(stdscr):
         # Zeige die ausgewählten Materialien im Kessel
         stdscr.addstr(5, 52, "Im Kessel:", curses.color_pair(4))
         for idx, material in enumerate(ausgewaehlte_materialien):
-            stdscr.addstr(7 + idx, 54, f"- {material}", curses.color_pair(materialien[[m["name"] for m in materialien].index(material)]["farbe"]))
-
+            stdscr.addstr(7 + idx, 54, f"- {material}",
+                          curses.color_pair(materialien[[m["name"] for m in materialien].index(material)]["farbe"]))
 
     def zeichne_rezeptbuch():
         nonlocal current_page, total_pages
         stdscr.addstr(1, 82, "📜 Rezeptbuch", curses.color_pair(6) | curses.A_BOLD)
-        
+
         # Calculate the range of recipes to display on the current page
         start_idx = current_page * max_recipes_per_page
         end_idx = start_idx + max_recipes_per_page
@@ -208,16 +233,16 @@ def main(stdscr):
         for idx, (name, details) in enumerate(recipes_to_display):
             stdscr.addstr(3 + idx * 5, 82, f"{name}:", curses.color_pair(6))
             stdscr.addstr(4 + idx * 5, 82, f"Materialien: {', '.join(details['materialien'])}", curses.color_pair(4))
-            stdscr.addstr(5 + idx * 5, 82, f"Qualität: {details['qualitaet']}%", curses.color_pair(3))
+            stdscr.addstr(5 + idx * 5, 82, f"Beste Qualität: {details['qualitaet']}%", curses.color_pair(3))
             stdscr.addstr(6 + idx * 5, 82, f"Anzahl: {details['anzahl']}", curses.color_pair(5))
             stdscr.addstr(7 + idx * 5, 82, "-------------------", curses.color_pair(6))
 
         # Display page navigation instructions
-        total_pages = max((len(rezeptbuch) + max_recipes_per_page - 1) // max_recipes_per_page, 1)  # Update total pages dynamically, ensuring it starts at 1
+        total_pages = max((len(rezeptbuch) + max_recipes_per_page - 1) // max_recipes_per_page,
+                          1)  # Update total pages dynamically, ensuring it starts at 1
         stdscr.addstr(18, 82, f"Seite {current_page + 1} von {total_pages}", curses.A_BOLD)
         stdscr.addstr(19, 82, "Drücke ← für nächste", curses.A_DIM)
         stdscr.addstr(20, 82, "Drücke → für vorherige.", curses.A_DIM)
-
 
     def zeichne_materialien(ausgewaehlte_materialien):
         stdscr.addstr(5, 2, "🪄 Materialien:", curses.color_pair(6) | curses.A_BOLD)
@@ -225,7 +250,6 @@ def main(stdscr):
             stdscr.addstr(7 + idx, 4, f"{idx + 1}. {material['name']}", curses.color_pair(material["farbe"]))
         stdscr.addstr(19, 2, "Wähle Materialien mit den Tasten [1-4],", curses.A_DIM)
         stdscr.addstr(20, 2, "bestätige mit [ENTER].", curses.A_DIM)
-
 
     def verarbeite_trank(ausgewaehlte_materialien):
         nonlocal aktuelle_xp, level, xp_bis_naechstes_level, muenzen, doppel_xp_zaehler, kesselabnutzung
@@ -246,17 +270,25 @@ def main(stdscr):
                     level += 1
                     xp_bis_naechstes_level = int(xp_bis_naechstes_level * 1.5)
 
-                muenzen += 5 + (qualitaet // 5)
+                base_coins = round(5 + qualitaet * 0.2)
+                if len(ausgewaehlte_materialien) == 3:
+                    base_coins = int(base_coins * 1.5)  # Korrigiere hier 'coins' zu 'base_coins'
+
+                if kombination["name"] in rezeptbuch:
+                    gebraute_anzahl = rezeptbuch[kombination["name"]]["anzahl"]
+                    coins = max(
+                        int(base_coins * (1 - 0.01 * gebraute_anzahl)), 3
+                    )  # Münzen sinken um 1% pro gebrautem Trank, aber nicht unter 3
+                    rezeptbuch[kombination["name"]]["anzahl"] += 1
+                else:
+                    coins = base_coins
+                    rezeptbuch[kombination["name"]] = {"materialien": kombination["materialien"],
+                                                       "qualitaet": qualitaet, "anzahl": 1}
+
+                muenzen += coins
                 kesselabnutzung -= random.randint(3, 5)
 
-                if kombination["name"] not in rezeptbuch:
-                    rezeptbuch[kombination["name"]] = {"materialien": kombination["materialien"], "qualitaet": qualitaet, "anzahl": 1}
-                else:
-                    if rezeptbuch[kombination["name"]]["qualitaet"] < qualitaet:
-                        rezeptbuch[kombination["name"]]["qualitaet"] = qualitaet
-                    rezeptbuch[kombination["name"]]["anzahl"] += 1
-
-                return f"Erfolgreich! {kombination['name']} - Qualität: {qualitaet}% (+{xp_gewonnen} XP, +{5 + (qualitaet // 10)} Münzen)"
+                return f"Erfolgreich! {kombination['name']} - Qualität: {qualitaet}% (+{xp_gewonnen} XP, +{coins} Münzen)"
 
         # Wenn der Trank nicht erfolgreich ist, verringern wir die Kesselabnutzung
         kesselabnutzung -= random.randint(6, 12)
@@ -271,7 +303,8 @@ def main(stdscr):
                 time.sleep(2)
                 return "Kessel erfolgreich repariert!"
             else:
-                stdscr.addstr(10, 2, "Spiel verloren! Du hattest nicht genug Münzen.", curses.color_pair(1) | curses.A_BOLD)
+                stdscr.addstr(10, 2, "Spiel verloren! Du hattest nicht genug Münzen.",
+                              curses.color_pair(1) | curses.A_BOLD)
                 stdscr.refresh()
                 time.sleep(2)
                 curses.endwin()
@@ -279,49 +312,63 @@ def main(stdscr):
 
         return "Fehlgeschlagen! Kesselabnutzung steigt!"
 
+    import math
 
     def laden():
         nonlocal muenzen, hinweis_preis, freischalt_preis, gesperrte_materialien
+
+        # Hier können wir eine Basis für das exponentielle Wachstum definieren
+        hinweis_wachstumsfaktor = 1.3  # Der Preis steigt um 10% pro Kauf
+        freischalt_wachstumsfaktor = 1.75  # Der Preis steigt um 10% pro Freischaltung
+
         while True:
             stdscr.clear()
             stdscr.addstr(2, 2, f"Shop ({muenzen} Münzen verfügbar):", curses.color_pair(6))
             stdscr.addstr(4, 4, f"1. Rezept-Hinweis kaufen ({hinweis_preis} Münzen)")
+
             if gesperrte_materialien:
                 stdscr.addstr(5, 4, f"2. Neues Material freischalten ({freischalt_preis} Münzen)")
             else:
                 stdscr.addstr(5, 4, "(Alle Materialien freigeschaltet!)", curses.A_DIM)
+
             stdscr.addstr(7, 2, "Drücke [Q], um zurückzukehren.")
             key = stdscr.getch()
-            if key == ord('q'): break
+
+            if key == ord('q'):
+                break
             elif key == ord('1'):
                 if muenzen >= hinweis_preis:
-                    gueltige_hinweise = [kombination for kombination in gueltige_kombinationen if all(mat in [m["name"] for m in verfuegbare_materialien] for mat in kombination["materialien"])]
+                    gueltige_hinweise = [kombination for kombination in gueltige_kombinationen if all(
+                        mat in [m["name"] for m in verfuegbare_materialien] for mat in kombination["materialien"])]
+
                     if gueltige_hinweise:
                         muenzen -= hinweis_preis
                         hinweis = random.choice(gueltige_hinweise)
                         teil_hinweis = hinweis["materialien"][:-1] + ["..."]
                         stdscr.addstr(9, 4, f"Tipp: {teil_hinweis}", curses.A_BOLD)
-                        hinweis_preis += 5
+
+                        # Exponentielles Wachstum des Preises
+                        hinweis_preis = round(hinweis_preis * hinweis_wachstumsfaktor)
                     else:
                         stdscr.addstr(9, 4, "Keine Rezepte verfügbar.", curses.A_BOLD)
                 else:
                     stdscr.addstr(9, 4, "Nicht genug Münzen!", curses.A_BOLD)
                 stdscr.refresh()
                 stdscr.getch()
+
             elif key == ord('2') and gesperrte_materialien:
                 if muenzen >= freischalt_preis:
                     muenzen -= freischalt_preis
                     neues_material = gesperrte_materialien.pop(0)
                     verfuegbare_materialien.append(neues_material)
                     stdscr.addstr(9, 4, f"Neues Material freigeschaltet: {neues_material['name']}!", curses.A_BOLD)
-                    freischalt_preis += 10
+
+                    # Exponentielles Wachstum des Preises
+                    freischalt_preis = round(freischalt_preis * freischalt_wachstumsfaktor)
                 else:
                     stdscr.addstr(9, 4, "Nicht genug Münzen!", curses.A_BOLD)
                 stdscr.refresh()
                 stdscr.getch()
-
-        
-
 
     def zeichne_info(stdscr, muenzen):
         # Draw the static content (only once)
@@ -348,7 +395,7 @@ def main(stdscr):
             zeichne_materialien(ausgewaehlte_materialien)
             zeichne_kessel(ausgewaehlte_materialien)
             zeichne_rezeptbuch()
-            
+
             stdscr.refresh()  # Add refresh here
             time.sleep(0.1)
 
@@ -364,7 +411,8 @@ def main(stdscr):
                     kesselabnutzung = 100
                     stdscr.addstr(10, 2, "Kessel erfolgreich repariert!", curses.color_pair(2) | curses.A_BOLD)
                 else:
-                    stdscr.addstr(10, 2, "Spiel verloren! Du hattest nicht genug Münzen.", curses.color_pair(1) | curses.A_BOLD)
+                    stdscr.addstr(10, 2, "Spiel verloren! Du hattest nicht genug Münzen.",
+                                  curses.color_pair(1) | curses.A_BOLD)
                     stdscr.refresh()
                     time.sleep(2)
                     break
@@ -372,7 +420,6 @@ def main(stdscr):
                 stdscr.refresh()
                 time.sleep(2)
                 continue
-
 
             if key == ord('t') and scroll_offset > 0:
                 scroll_offset -= 1  # Move up by 1 recipe
@@ -386,8 +433,10 @@ def main(stdscr):
                 if current_page > 0:
                     current_page -= 1
 
-            if key == ord('q'): break
-            elif key == ord('s'): laden()
+            if key == ord('q'):
+                break
+            elif key == ord('s'):
+                laden()
             elif ord('1') <= key <= ord(str(min(len(verfuegbare_materialien), 9))):
                 material_idx = key - ord('1')
                 if len(ausgewaehlte_materialien) < 3:
@@ -404,5 +453,6 @@ def main(stdscr):
                 scroll_offset -= 1
 
     spiel_schleife()
+
 
 curses.wrapper(main)
