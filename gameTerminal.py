@@ -117,7 +117,7 @@ def main(stdscr):
     ]
 
     # Status
-    level, aktuelle_xp, xp_bis_naechstes_level, muenzen, doppel_xp_zaehler = 1, 0, 100, 200000, 0
+    level, aktuelle_xp, xp_bis_naechstes_level, muenzen, doppel_xp_zaehler = 1, 0, 100, 200, 0
     hinweis_preis, freischalt_preis = 50, 100
     rezeptbuch = {}
     kesselabnutzung = 100
