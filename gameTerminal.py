@@ -117,11 +117,10 @@ def main(stdscr):
     ]
 
     # Status
-    level, aktuelle_xp, xp_bis_naechstes_level, muenzen, doppel_xp_zaehler = 1, 0, 100, 200, 0
+    level, aktuelle_xp, xp_bis_naechstes_level, muenzen, doppel_xp_zaehler = 1, 0, 100, 200000, 0
     hinweis_preis, freischalt_preis = 50, 100
     rezeptbuch = {}
     kesselabnutzung = 100
-    scroll_offset = 0
 
     max_recipes_per_page = 3  # Show 3 recipes per page
     total_pages = (len(rezeptbuch) + max_recipes_per_page - 1) // max_recipes_per_page  # Calculate total pages
@@ -383,12 +382,11 @@ def main(stdscr):
         curses.curs_set(0)  # Hide cursor
         nonlocal muenzen, kesselabnutzung, current_page
         ausgewaehlte_materialien = []
-        global scroll_offset
-        scroll_offset = 0
-        max_display = 3
 
         while True:
+            # Terminal leer machen
             stdscr.clear()
+            # Zeichnen der GUI
             zeichne_info(stdscr, muenzen)
             zeichne_rahmen()
             zeichne_status()
@@ -396,9 +394,10 @@ def main(stdscr):
             zeichne_kessel(ausgewaehlte_materialien)
             zeichne_rezeptbuch()
 
-            stdscr.refresh()  # Add refresh here
-            time.sleep(0.1)
+            stdscr.refresh()  # Terminal aktualisieren
+            time.sleep(0.1) # 0.1s warten
 
+            # Auf Nutzerinput warten
             key = stdscr.getch()
             # Überprüfen, ob der Kessel kaputt ist
             if kesselabnutzung <= 0:
@@ -421,36 +420,45 @@ def main(stdscr):
                 time.sleep(2)
                 continue
 
-            if key == ord('t') and scroll_offset > 0:
-                scroll_offset -= 1  # Move up by 1 recipe
-            elif key == ord('g') and scroll_offset + max_display < len(rezeptbuch):
-                scroll_offset += 1  # Move down by 1 recipe
+            # Rezeptbuch Navigation
 
-            if key == curses.KEY_RIGHT:  # Next page
+            if key == curses.KEY_RIGHT:  # Nächste Seite
                 if current_page < total_pages - 1:
                     current_page += 1
-            elif key == curses.KEY_LEFT:  # Previous page
+            elif key == curses.KEY_LEFT:  # Vorherige Seite
                 if current_page > 0:
                     current_page -= 1
 
+            # Spiel verlassen
             if key == ord('q'):
                 break
             elif key == ord('s'):
                 laden()
-            elif ord('1') <= key <= ord(str(min(len(verfuegbare_materialien), 9))):
-                material_idx = key - ord('1')
+            # 0 drücken für das 10. Material da es keine Taste "10" auf der Tastatur gibt
+            elif key == ord('0') and len(verfuegbare_materialien) >= 10:
+                # Maximal drei items im Kessel
                 if len(ausgewaehlte_materialien) < 3:
+                    # Items zu Kessel hinzufügen
+                    ausgewaehlte_materialien.append(verfuegbare_materialien[9]["name"])
+            # Tastatur Input für Materialien 1-9
+            elif ord('1') <= key <= ord(str(min(len(verfuegbare_materialien), 9))):
+                # Gedrückte Taste wird von unicode von 1 abgezogen -> Man bekommt den index des Items heraus
+                material_idx = key - ord('1')
+                # Nicht mehr als drei Items im Kessel
+                if len(ausgewaehlte_materialien) < 3:
+                    # Items zu Kessel hinzufügen
                     ausgewaehlte_materialien.append(verfuegbare_materialien[material_idx]["name"])
+
+            # Wenn ENTER Taste gedrückt wird und es items im Kessel gibt:
             elif key == ord('\n') and ausgewaehlte_materialien:
                 result = verarbeite_trank(ausgewaehlte_materialien)
+                # Items aus Kessel entfernen
                 ausgewaehlte_materialien.clear()
+                # Gebrauter Trank oder Fehlschlagung Anzeigen
                 stdscr.addstr(24, 2, result, curses.A_BOLD)
+                # Terminal aktualisieren
                 stdscr.refresh()
                 stdscr.getch()
-            elif key == curses.KEY_DOWN and scroll_offset < len(verfuegbare_materialien) - 7:
-                scroll_offset += 1
-            elif key == curses.KEY_UP and scroll_offset > 0:
-                scroll_offset -= 1
 
     spiel_schleife()
 
