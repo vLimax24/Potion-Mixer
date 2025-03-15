@@ -30,7 +30,7 @@ def main(stdscr):
     gesperrte_materialien = materialien[4:]       # Die restlichen Materialien sind zunächst gesperrt
 
     # Liste der gültigen Rezeptkombinationen
-        gueltige_kombinationen = [
+    gueltige_kombinationen = [
         {"name": "Lavendelzauber", "materialien": ["Lavendel", "Salbei"], "qualitaet_spanne": (0, 100)},
         {"name": "Rosmarin-Elixier", "materialien": ["Rosmarin", "Kamille"], "qualitaet_spanne": (0, 100)},
         {"name": "Schutztrank", "materialien": ["Salbei", "Rosmarin"], "qualitaet_spanne": (0, 100)},
@@ -224,7 +224,7 @@ def main(stdscr):
         stdscr.addstr(19, 82, "Drücke ← für nächste", curses.A_DIM)
         stdscr.addstr(20, 82, "Drücke → für vorherige.", curses.A_DIM)
 
-    def zeichne_materialien(ausgewaehlte_materialien):
+    def zeichne_materialien():
         """
         Zeichnet den Bereich der Materialien, die der Spieler auswählen kann.
         """
@@ -357,7 +357,7 @@ def main(stdscr):
                 stdscr.refresh()
                 stdscr.getch()
 
-    def zeichne_info(stdscr, muenzen):
+    def zeichne_info(stdscr):
         """
         Zeichnet den statischen Informationsbereich mit den Steuerungsanweisungen.
         """
@@ -377,10 +377,10 @@ def main(stdscr):
         while True:
             stdscr.clear()  # Leere das Terminal
             # Zeichne alle GUI-Komponenten
-            zeichne_info(stdscr, muenzen)
+            zeichne_info(stdscr)
             zeichne_rahmen()
             zeichne_status()
-            zeichne_materialien(ausgewaehlte_materialien)
+            zeichne_materialien()
             zeichne_kessel(ausgewaehlte_materialien)
             zeichne_rezeptbuch()
 
