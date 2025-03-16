@@ -207,11 +207,11 @@ def main(stdscr):
 
         # Berechne den Indexbereich der Rezepte, die auf der aktuellen Seite angezeigt werden
         start_idx = aktuelle_seite * max_rezepte
-        end_idx = start_idx + max_rezepte
-        recipes_to_display = list(rezeptbuch.items())[start_idx:end_idx]
+        ende_idx = start_idx + max_rezepte
+        rezepte_zum_anzeigen = list(rezeptbuch.items())[start_idx:ende_idx]
 
         # Zeige die Rezepte der aktuellen Seite an
-        for idx, (name, details) in enumerate(recipes_to_display):
+        for idx, (name, details) in enumerate(rezepte_zum_anzeigen):
             stdscr.addstr(3 + idx * 5, 82, f"{name}:", curses.color_pair(6))
             stdscr.addstr(4 + idx * 5, 82, f"Materialien: {', '.join(details['materialien'])}", curses.color_pair(4))
             stdscr.addstr(5 + idx * 5, 82, f"Beste Qualität: {details['qualitaet']}%", curses.color_pair(3))
